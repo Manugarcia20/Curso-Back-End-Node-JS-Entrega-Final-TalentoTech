@@ -33,7 +33,7 @@ function getProduct(id){
     new Promise(async (res,rej) => {
       try{
         const querySnapshot = await getDocs(collection(db, "products"));
-        console.log("Snap completa: ", querySnapshot)
+        //console.log("Snap completa: ", querySnapshot)
         const products = [];
         querySnapshot.forEach((doc) => {
         // doc.data() is never undefined for query doc snapshots

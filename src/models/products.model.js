@@ -1,26 +1,112 @@
-import fs, { read } from 'fs'
-import path from "path"
-import { fileURLToPath } from 'url';
+import { db } from "../data/data.js";
 
-const __fileName = fileURLToPath(import.meta.url);
-// console.log("__fileName: ", __fileName);
-const __dirname = path.dirname(__fileName);
-const filePath = path.join(__dirname,"db.json");
+import { doc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
 
-async function readDB(){
+export function getProduct(id){
+  return new Promise(async (res,rej) => {
     try{
-        const data = fs.readFileSync(filePath, "utf-8");
-        const products = await JSON.parse(data);
-        return products;
-    }catch(error){
-        console.log(error);
+        const docRef = doc(db, "products", id);
+        const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        console.log("Snap data: ", docSnap)
+        console.log("Document ID:", docSnap.id);
+        console.log("Document data:", docSnap.data());
+        res(docSnap.data());
+    } else {
+      // docSnap.data() will be undefined in this case
+        console.log("No such document!");
+        res();
     }
+  }catch(error){
+    console.log(error);
+    rej(error);
+  }
+
+})
+ 
 }
 
-// readDB();
+//getProduct(id)
 
-export async function getProducts(){
-    const products = await readDB();
-    return products;
+ export function getProducts(){
+  return(
+    new Promise(async (res,rej) => {
+      try{
+        const querySnapshot = await getDocs(collection(db, "products"));
+        //console.log("Snap completa: ", querySnapshot)
+        const products = [];
+        querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        //console.log(doc.id, " => ", doc.data());
+        products.push({...doc.data(), id: doc.id}); 
+      });
+      //console.log(products);
+      res(products);
+      }catch(error){
+          console.log(error);
+          rej(error);
+      }
+    })
+
+  )
+}
+//getProducts() 
+
+export function addProduct(product){
+  return(
+    new Promise(async (res, rej) => {
+      try{
+        const docRef = await addDoc(collection(db,"products"),product)
+        console.log("Doc ID:", docRef.id, "Producto: ")
+        res({...product,id:docRef.id})
+      }catch(err){
+        console.log(err);
+        rej(error);
+      }
+    })
+  )
 }
 
+//addProduct({name:"yerba", categoria: "infusion", precio: 200});
+
+
+export function updateProduct(id,product){
+  return(
+    new Promise(async (res,rej) => {
+    try{
+      await updateDoc(doc(db,"products",id),{...product});
+      console.log("Product updated");
+      res();
+    }catch(error){
+      console.log(error);
+      rej(error);
+    }
+    })
+  )
+
+}
+
+//updateProduct({id: "p13Bgi9p8iRCp7aEhEo6", precio: 220});
+
+export function deleteProduct(id){
+  return(
+    new Promise(async (res,rej) => {
+      try{
+        await deleteDoc(doc(db,"products",id));
+        console.log("Product deleted");
+        res();
+      }catch(error){
+        console.log(error);
+        rej(error);
+      }
+
+
+    })
+
+
+  )
+  
+}
+
+//deleteProduct("p13Bgi9p8iRCp7aEhEo6");

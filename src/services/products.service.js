@@ -1,39 +1,73 @@
-// const products = [
-// {
-//     id: 1,
-//     name: 'Producto 1',
-//     price: 1000
-// },
-// {
-//     id: 2,
-//     name: 'Producto 2',
-//     price: 2000
-// },
-// ]
 
-import {
-    getProducts
-} from "../models/products.model.js"
+import{addProduct, deleteProduct, getProduct, getProducts, updateProduct} from "../models/products.model.js"
 
 
 export const getAllProductsService = async () =>{
-    const products = await getProducts();
-    return products;
+    return(
+        new Promise(async (res,rej) =>{
+        try{
+            const products = await getProducts();
+            res(products);
+        }catch(error){
+            rej(error);
+        }
+        })
+    )
 }
+
+
 export const getProductByIdService = async (id) => {
-    const products = await getProducts();
-    return products.find(product => product.id == id);
+    return(
+        new Promise(async (res,rej) => {
+
+            try{
+                const products = await getProduct(id);
+                res(products);
+            }catch(error){
+                rej(error);
+            }
+        })
+    )
 };
 
-export const createProduct = async (productData) => {
-
-const newProduct = {
-    id: products.length + 1,
-    name:productData.name,
-    price: productData.price
+export const createProductService = async (productData) => {
+    return(
+        new Promise(async (res,rej) => {
+            try{
+                const newProduct = await addProduct(productData);
+                res(newProduct);
+            }catch(error){
+                rej(error);
+            }
+        })
+    )
 };
 
-    products.push(newProduct);
-    return newProduct;
-};
+
+export const deleteProductService = async (id) => {
+    return(
+        new Promise(async (res,rej) => {
+            try{
+                await deleteProduct(id);
+                res();
+            }catch(error){
+                rej(error);
+            }
+        })
+    )
+}
+
+export const updateProductService = async (id,product) => {
+ return(
+        new Promise(async (res,rej) => {
+            try{
+                const newProduct = await updateProduct(id,product);
+                res(newProduct);
+            }catch(error){
+                rej(error);
+            }
+        })
+    )
+}
+
 
